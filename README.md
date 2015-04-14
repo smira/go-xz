@@ -1,5 +1,7 @@
 # go-xz
 
+[![GoDoc](https://godoc.org/github.com/smira/go-xz?status.svg)](https://godoc.org/github.com/smira/go-xz)
+
 Simple .xz decompression using external program (xz --decompress)
 
 ## Why?
