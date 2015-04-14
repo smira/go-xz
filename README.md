@@ -2,6 +2,8 @@
 
 [![GoDoc](https://godoc.org/github.com/smira/go-xz?status.svg)](https://godoc.org/github.com/smira/go-xz)
 
+[![Build Status](https://travis-ci.org/smira/go-xz.svg?branch=master)](https://travis-ci.org/smira/go-xz)
+
 Simple .xz decompression using external program (xz --decompress)
 
 ## Why?
