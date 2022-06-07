@@ -3,6 +3,7 @@ package xz
 import (
 	"bytes"
 	"io"
+	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -44,5 +45,23 @@ func TestDecompress(T *testing.T) {
 	err = r.Close()
 	if err != nil {
 		T.Fail()
+	}
+}
+
+func BenchmarkDecompress(b *testing.B) {
+	data, err := ioutil.ReadFile("testdata/spec.xz")
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		r, err := NewReader(bytes.NewReader(data))
+		if err != nil {
+			b.Fatal(err)
+		}
+		_, err = io.Copy(ioutil.Discard, r)
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }
