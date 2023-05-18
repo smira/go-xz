@@ -6,11 +6,13 @@ package xz
 import (
 	"io"
 	"os/exec"
+	"syscall"
 )
 
 // Reader does decompression using xz utility
 type Reader struct {
-	io.ReadCloser
+	out io.ReadCloser
+	cmd *exec.Cmd
 }
 
 // NewReader creates .xz decompression reader
@@ -27,5 +29,29 @@ func NewReader(src io.Reader) (*Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Reader{ReadCloser: out}, nil
+	return &Reader{out: out, cmd: cmd}, nil
+}
+
+func (rd *Reader) Read(p []byte) (n int, err error) {
+	return rd.out.Read(p)
+}
+
+func (rd *Reader) Close() error {
+	if err := rd.out.Close(); err != nil {
+		return err
+	}
+
+	if err := rd.cmd.Wait(); err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			status, ok := exitErr.Sys().(syscall.WaitStatus)
+			if ok && status.Signaled() && status.Signal() == syscall.SIGPIPE {
+				// SIGPIPE is normal because xz's stdout was closed.
+				return nil
+			}
+		}
+
+		return err
+	}
+
+	return nil
 }

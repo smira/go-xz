@@ -48,6 +48,30 @@ func TestDecompress(T *testing.T) {
 	}
 }
 
+func TestEarlyClose(T *testing.T) {
+	source, err := os.Open("testdata/spec.xz")
+	if err != nil {
+		T.Fatal(err)
+	}
+	defer source.Close()
+
+	r, err := NewReader(source)
+	if err != nil {
+		T.Fatal(err)
+	}
+
+	buf := make([]byte, 10)
+	n, err := r.Read(buf)
+	if n != len(buf) {
+		T.Fail()
+	}
+
+	err = r.Close()
+	if err != nil {
+		T.Fail()
+	}
+}
+
 func BenchmarkDecompress(b *testing.B) {
 	data, err := ioutil.ReadFile("testdata/spec.xz")
 	if err != nil {
